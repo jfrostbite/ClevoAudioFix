@@ -25,6 +25,7 @@ jobs:
         clang -framework Foundation -framework IOKit \
           HeadphoneAmp.m \
           HeadphoneAmpDaemon.m \
+          -arch x86_64 \
           -o build/HeadphoneAmpDaemon
           
     - name: Create Package
