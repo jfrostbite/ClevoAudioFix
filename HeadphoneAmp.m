@@ -56,6 +56,7 @@
     if (_connection) {
         IOServiceClose(_connection);
     }
+    [super dealloc];
 }
 
 @end 

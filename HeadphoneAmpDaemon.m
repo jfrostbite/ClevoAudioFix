@@ -1,6 +1,10 @@
 #import <Foundation/Foundation.h>
 #import "HeadphoneAmp.h"
 #import <IOKit/pwr_mgt/IOPMLib.h>
+#import <IOKit/IOMessage.h>
+
+// 声明全局变量
+static io_connect_t root_port;
 
 void sleepWakeCallback(void *refCon, io_service_t service, natural_t messageType, void *messageArgument) {
     if (messageType == kIOMessageSystemWillSleep) {
