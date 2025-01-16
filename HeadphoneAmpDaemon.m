@@ -4,11 +4,17 @@
 
 void sleepWakeCallback(void *refCon, io_service_t service, natural_t messageType, void *messageArgument) {
     if (messageType == kIOMessageSystemWillSleep) {
-        // 系统即将睡眠,不需要特殊处理
+        // 睡眠前可能需要保存状态
         IOAllowPowerChange(root_port, (long)messageArgument);
     } else if (messageType == kIOMessageSystemHasPoweredOn) {
-        // 系统唤醒,重新初始化放大器
-        [[HeadphoneAmp sharedInstance] initializeAmp];
+        // 添加重试逻辑
+        int retries = 3;
+        while (retries--) {
+            if ([[HeadphoneAmp sharedInstance] initializeAmp]) {
+                break;
+            }
+            [NSThread sleepForTimeInterval:0.5];
+        }
     }
 }
 

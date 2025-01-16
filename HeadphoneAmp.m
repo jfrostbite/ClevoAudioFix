@@ -1,9 +1,10 @@
 #import "HeadphoneAmp.h"
 
-// SMBus registers
-#define TRANSMIT_SLAVE_ADDR_REG 0x4
-#define HOST_CMD_REG 0x3  
-#define HOST_DATA_REG 0x5
+// 修改SMBus寄存器定义以匹配原始实现
+#define SMBUS_ADDR 0x73  // Realtek ALC代码中的地址
+#define CMD_POWER 0x8B
+#define CMD_GAIN  0x04
+#define CMD_ENABLE 0x01
 
 @implementation HeadphoneAmp {
     io_connect_t _connection;
@@ -19,18 +20,19 @@
 }
 
 - (BOOL)initializeAmp {
-    // 通过IOKit找到SMBus控制器
     io_service_t service = IOServiceGetMatchingService(kIOMainPortDefault, 
         IOServiceMatching("AppleSMBusController"));
     if (!service) return NO;
     
-    // 打开连接
     kern_return_t kr = IOServiceOpen(service, mach_task_self(), 0, &_connection);
     IOObjectRelease(service);
     if (kr != KERN_SUCCESS) return NO;
 
-    // 初始化放大器
-    [self writeByte:0x73 command:0x01 data:0x8B];
+    // 按照原始Linux代码的初始化序列
+    if (![self writeByte:SMBUS_ADDR command:0x01 data:CMD_POWER]) return NO;
+    if (![self writeByte:SMBUS_ADDR command:0x02 data:CMD_GAIN]) return NO;
+    if (![self writeByte:SMBUS_ADDR command:0x03 data:CMD_ENABLE]) return NO;
+    
     return YES;
 }
 
